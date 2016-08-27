@@ -7,17 +7,21 @@ import (
 	"math/rand"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/quiteawful/WebEssentials/global"
 )
 
 var linkMap map[string]string
+var shortenerBase string
 
 const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func init() {
+	shortenerBase = global.Conf.BaseURL + ":" + strconv.Itoa(global.Conf.Port) + "/l/"
 	os.MkdirAll(global.Conf.Linksdir, 0755)
+	linkMap = make(map[string]string)
 	filename := global.Conf.Linksdir + "linklist.json"
 	cont, err := global.Exists(filename)
 	if err != nil {
@@ -57,17 +61,21 @@ func randomString(strlen int) string {
 	return string(result)
 }
 
-func GenerateNewShortURL(in url.URL) string {
+func GenerateNewShortURL(in *url.URL) (string, error) {
 	res := "random"
 	var u string
 	for res != "" {
-		u = global.Conf.BaseURL + "/l/" + randomString(6)
+		u = randomString(6)
 		res = linkMap[u]
 	}
 	linkMap[u] = in.String()
-	return u
+	err := SaveLinkList()
+	if err != nil {
+		return "", err
+	}
+	return shortenerBase + u, nil
 }
 
-func GetRealURL(in *url.URL) string {
-	return linkMap[in.String()]
+func GetRealURL(c string) string {
+	return linkMap[c]
 }

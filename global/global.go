@@ -30,7 +30,7 @@ func init() {
 		log.Fatal("Could not load config: ", err.Error())
 	}
 	if Conf.BaseURL == "" {
-		Conf.BaseURL = "https://127.0.0.1/"
+		Conf.BaseURL = "http://127.0.0.1"
 	}
 	if Conf.Imagedir == "" {
 		Conf.Imagedir = Execdir + "images/"
